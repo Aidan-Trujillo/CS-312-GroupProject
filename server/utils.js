@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { json } = require('express');
-const { getExpenses, getUser } = require('./database.js');
+const { getExpenses, insertExpense, deleteExpense, updateExpense, 
+     getUser } = require('./database.js');
 
 // function that outputs an array of blog posts
 const readExpenses = async (user_id) => {
@@ -31,38 +32,52 @@ const loginUser = async (username, password) => {
 }
 
 
-// function that simplly adds a newly created post
-const addPost = async (filePath, post) => {
-    // get list of posts
-    const {posts, lastId} = await readPosts(PostsPath);
-    // get the next index to add to the post
-    post.id = Number(lastId) + 1;
-    
-    // push the post and get it ready to write to the file
-    posts.push(post);
-    const formattedData = JSON.stringify(posts, null, 2);
+// function that simplly adds a newly created expense for a user
+const addExpense = async (expense) => {
+    try{
+        const result = await insertExpense(expense);
 
-    await fs.promises.writeFile(filePath, formattedData, (err) => {
-        if (err) throw err;
-        console.log("added " +data+ " to blogPost");
-    });
+        console.log("Added expense to the table.")
+        return {success: true}
+
+    } catch (err) {
+        console.error('Error adding data: ', err)
+        // send black blank file
+        return {success: false}
+    }
 };
 
+const removeExpense = async (expense) => {
+    try{
+        const result = await deleteExpense(expense.expense_id);
+        console.log("Post deleted successfuly")
+        return {success: true}
+    } catch (err) {
+        console.error('Error deleting the post', err)
+
+        return {success: false}
+    }
+}
 
 // a function that saves a post. Takes post list and just writes to the file
-const savePosts = async (posts) => {
-    const formattedData = JSON.stringify(posts, null, 2);
+const saveExpense = async (expense) => {
+    try{
+        const result = await updateExpense(expense.expense_id);
+        console.log("Post deleted successfuly")
+        return {success: true}
+    } catch (err) {
+        console.error('Error deleting the post', err)
 
-    await fs.promises.writeFile(PostsPath, formattedData, (err) => {
-        if (err) throw err;
-        console.log("blog post saved");
-    });
+        return {success: false}
+    }
+    
 }
 
 
 module.exports = {
     readExpenses,
     loginUser,
-    addPost, 
-    savePosts
+    addExpense,
+    removeExpense, 
+    saveExpense
 }

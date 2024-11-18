@@ -16,9 +16,33 @@ const getExpenses = async(user_id) => {
     // connect to the database
 
     // change this to read my posts. 
-    const result = await client.query(`SELECT * FROM public.expenses WHERE user_id = ${user_id} ORDER BY expense_id ASC; `)
+    const result = await client.query(`SELECT * FROM public.expenses WHERE user_id = ${user_id} ORDER BY date DESC; `)
         
     return result;
+}
+
+// database code to insert an expense
+const insertExpense = async(expense) => {
+    const result = await client.query(`INSERT INTO public.expenses (user_id, amount, category, date, description)
+        VALUES ($1, $2, $3, $4, $5)`,
+  [expense.user_id, expense.amount, expense.category, expense.date, expense.description])
+}
+
+// database code to delete an expense. 
+const deleteExpense = async(expense_id) => {
+    const result = await client.query(
+        `DELETE FROM public.expenses WHERE expense_id = $1;`, [expense_id] 
+    )
+}
+
+const updateExpense = async(expense) => {
+    const result = await client.query(
+        `UPDATE public.expenses
+         SET user_id = $1, amount = $2, category = $3, date = $4, description = $5
+         WHERE expense_id = $6`,
+        [expense.user_id, expense.amount, expense.category, expense.date, expense.description, expense.expense_id]
+      );
+    
 }
 
 // database code to get a user
@@ -62,12 +86,15 @@ const insertUser = async(user_name, password, name) => {
 	user_id, password, name, user_name)
 	VALUES (${newId}, ${password}, ${name}, ${user_name});`)
 
-    console.log("user added successfully")
+    console.log("Expense added successfully.")
 
 }
 
 module.exports = {
     getExpenses,
+    insertExpense,
+    deleteExpense,
+    updateExpense,
     getUser,
     insertUser
 };
