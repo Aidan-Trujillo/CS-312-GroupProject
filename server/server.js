@@ -50,23 +50,22 @@ app.post('/login', async (req,res) => {
 
 
 // page for viewing expenses
-app.get('/expenses', async (req,res) => {
-    try{
-        // get the user_id
-        const user_id = req.query.user_id;
-        // get all posts
-        const {expenses} = await readExpenses(user_id);
+app.get('/expenses', async (req, res) => {
+    try {
+        const { user_id, category, month } = req.query;
+        const { expenses } = await readExpenses(user_id, category, month);
 
-        console.log(expenses)
-        console.log(expenses.length)
-        
-        res.send(JSON.stringify(expenses))
+        console.log(expenses);
+        console.log(expenses.length);
+
+        res.send(JSON.stringify(expenses));
 
     } catch (err) {
         console.error('Error:', err);
-        res.status(500).send('Error processing the form');
+        res.status(500).send('Error processing the request');
     }
 });
+
 
 // API for posting a expense
 app.post('/expense', async (req,res) => {

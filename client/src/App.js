@@ -9,8 +9,10 @@ function App() {
   const [expenses, setExpenses] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editExpense, setEditExpense] = useState(-1);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('');
   // variables to control login state and manual refresh
-  const [logInState, setLogInState] = useState({loggedIn: false, user_id: -1})
+  const [logInState, setLogInState] = useState({loggedIn: true, user_id: 1})
   const [refresh, setRefresh] = useState(false)
 
   // form data entries
@@ -19,22 +21,24 @@ function App() {
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("")
 
-  useEffect(() => {
-    const getData = async () => {
-      axios.get(`http://localhost:8080/expenses?user_id=${logInState.user_id}`).then((data) => {
-        //this console.log will be in our frontend console
-        console.log(data.data)
-        setExpenses(data.data)
-      })
-    };
+    useEffect(() => {
+        const getData = async () => {
+            const mockExpenses = [
+                { expense_id: 1, amount: 50.0, category: 'Tech', date: '2024-11-01', description: 'Laptop Accessories' },
+                { expense_id: 2, amount: 20.0, category: 'Lifestyle', date: '2024-11-05', description: 'Coffee' },
+            ];
+            console.log("Mock Data Loaded:", mockExpenses);
+            setExpenses(mockExpenses);
+        };
 
-    if(logInState.loggedIn){
-      getData();
-      setRefresh(false);
-    }
-  }, [logInState, refresh]);
+        if (logInState.loggedIn) {
+            getData();
+            setRefresh(false);
+        }
+    }, [logInState, refresh]);
 
-  function handleEdit(expense) {
+
+    function handleEdit(expense) {
     console.log("Editing post:", expense);
     setEditMode(true);
     setEditExpense(expense);
@@ -59,127 +63,148 @@ function App() {
 
   console.log("logInState app: ", logInState)
 
-  return (
-    <div className="App">
-      <header>
-          <h1></h1>
-      </header>
+    return (
+        <div className="App">
+            <header>
+                <h1>Expense Tracker</h1>
+            </header>
 
-      <main>
-          {logInState.loggedIn ? <div></div> : <LogInModal setLogIn={setLogInState} logInState={logInState} />}
-          
-          <p style={{fontSize: '20px'}}>Below you can enter a blog post or scroll further to see others' posts</p>
+            <main>
+                {logInState.loggedIn ? (
+                    <>
+                        <div id="form-div">
+                            <form onSubmit={handleSubmit}>
+                                {/* Amount Input */}
+                                <label htmlFor="amount">Amount:</label>
+                                <input
+                                    type="number"
+                                    id="amount"
+                                    name="amount"
+                                    value={amount}
+                                    placeholder="Amount"
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    required
+                                />
+                                <br/>
 
-          {/* <!-- Blog Post Form Below -->*/}
+                                {/* Date Input */}
+                                <label htmlFor="date">Date:</label>
+                                <input
+                                    type="date"
+                                    id="date"
+                                    name="date"
+                                    value={date}
+                                    onChange={(e) => setDate(e.target.value)}
+                                    required
+                                />
+                                <br/>
 
-          <div id="form-div">
-          <form onSubmit={handleSubmit}>
-              <label htmlFor="amount">Amount: </label>
-              <input type="text" id="amount" name="amount" value={amount} placeholder="Amount" onChange={(e) => setAmount(e.target.value)} required />
-              <br></br>
+                                {/* Category Input */}
+                                <label htmlFor="category">Category:</label>
+                                <input
+                                    type="text"
+                                    id="category"
+                                    name="category"
+                                    value={category}
+                                    placeholder="Category (e.g., Food, Tech)"
+                                    onChange={(e) => setCategory(e.target.value)}
+                                    required
+                                />
+                                <br/>
 
-              <label htmlFor='date' >Date: </label>
-              <input type="date" onChange={(e)=>setDate(e.target.value)} required/>
-              <br/><br/>
+                                {/* Description Input */}
+                                <label htmlFor="description">Description:</label>
+                                <textarea
+                                    id="description"
+                                    name="description"
+                                    value={description}
+                                    placeholder="Describe the expense"
+                                    rows="4"
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    required
+                                ></textarea>
+                                <br/>
 
-              <label htmlFor='description' >Description: </label>
-              <textarea rows="4" cols="50" id='description' value={description} onChange={(e)=>setDescription(e.target.value)}></textarea>
-              <br/><br/>
+                                {/* Submit Button */}
+                                <button type="submit">Add Expense</button>
+                            </form>
+                        </div>
 
-              <label htmlFor='category'>Category: </label>
-              <input type='text' id='category' name='category' value={category} onChange={(e) => setCategory(e.target.value)}></input>
 
-              <button type="submit">Post</button>
-              
-          </form>
-          </div>
+                        <div className="feed">
+                            <h1>Expenses</h1>
+                            {expenses.length === 0 ? (
+                                <p>No expenses match your criteria.</p>
+                            ) : (
+                                <RenderExpenses
+                                    currentExpenses={expenses}
+                                    setCurrentExpenses={setExpenses}
+                                    beginEdit={handleEdit}
+                                />
+                            )}
+                        </div>
+                    </>
+                ) : (
+                    <LogInModal setLogIn={setLogInState} logInState={logInState}/>
+                )}
+            </main>
 
-          <div className="placeholder" ></div>
+            <footer>
+                <p>&copy; 2024 Expense Tracker. All rights reserved.</p>
+            </footer>
+        </div>
+    );
 
-          {/*<!-- All Current Blog Posts --> */}
-          {editMode && <EditPostModal post={editExpense} closeEdit={() => setEditMode(false)} />}
-          <div className="feed">
-              <h1>Expenses</h1>
-
-              {/*<!-- Filter for Posts -->*/}
-              <label>Change Category:</label>
-              <select id="categoryPosts" name="categoryPosts">
-                  <option value="" disabled>Select your category</option>
-                  <option value="All" >All</option>
-                  <option value="Tech">Tech</option>
-                  <option value="Lifestyle">Lifestyle</option>
-                  <option value="Education">Education</option>
-                  <option value="None">None</option>
-              </select>
-              
-              <div className="placeholder"></div>
-
-              {/*<!-- Blog Posts sorted newest at the top -->*/}
-              <ul>
-                {console.log("posts", typeof expenses)}
-                <RenderExpenses currentExpenses={expenses} setCurrentExpenses={setExpenses} beginEdit={handleEdit}/>  
-              </ul>
-          </div>
-
-          
-      </main>
-
-      <footer>
-          <p>&copy; 2024 Aidan Trujillo. All rights reserved.</p>
-      </footer>
-    </div>
-  );
 }
 
 
 function RenderExpenses(props) {
-  const [expenses, setExpenses] = useState([]);
-  const {currentExpenses, setCurrentExpenses, beginEdit} = props
-  
-  useEffect(() => {
-    if (Array.isArray(currentExpenses)) {
-      setExpenses(currentExpenses);
+    const [expenses, setExpenses] = useState([]);
+    const {currentExpenses, setCurrentExpenses, beginEdit} = props
+
+    useEffect(() => {
+        if (Array.isArray(currentExpenses)) {
+            setExpenses(currentExpenses);
+        }
+
+    }, [currentExpenses]);
+
+
+    // function that makes the api request call to delete
+    const handleDelete = (expense) => {
+        // expense already in json Format
+        axios.post('http://localhost:8080/delete', expense)
+
+        setCurrentExpenses(expenses.filter(expense_item => expense_item.expense_id !== expense.expense_id))
     }
 
-  }, [currentExpenses]);
-  
-  
-
-  // function that makes the api request call to delete
-  const handleDelete = (expense) => {
-    // expense already in json Format
-    axios.post('http://localhost:8080/delete', expense)
-
-    setCurrentExpenses(expenses.filter(expense_item => expense_item.expense_id !== expense.expense_id))
-  }
-
-  return (
-    
-    <ul>
-      {expenses.map( expense => (
-        <div className="expense" id={expense.expense_id} key={expense.expense_id} >
-        {/*<!-- Blog Post edit/delete buttons -->
-            */}
-        <div className="expense-header">
-            <button 
-            className="mod-button"
-            onClick={() => beginEdit(expense)}> 
-            Edit</button>
-            <button 
-            className="mod-button"
-            onClick={() => handleDelete(expense)}>
-            Delete</button>
-
-            <h1> {expense.date}</h1>
-            <h4>{expense.amount}</h4>
-            <h4>Expense: {expense.description} </h4>
-            <h4>Category: {expense.category} </h4>
-        </div> 
-      </div>
-    
-      ))}
-    </ul>
-  );
+    return (
+        <table className="expenses-table">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {currentExpenses.map((expense) => (
+                <tr key={expense.expense_id}>
+                    <td>{expense.date}</td>
+                    <td>{expense.amount}</td>
+                    <td>{expense.description}</td>
+                    <td>{expense.category}</td>
+                    <td>
+                        <button onClick={() => beginEdit(expense)}>Edit</button>
+                        <button onClick={() => handleDelete(expense)}>Delete</button>
+                    </td>
+                </tr>
+            ))}
+            </tbody>
+        </table>
+    );
 }
 
 // function to edit the post. 
