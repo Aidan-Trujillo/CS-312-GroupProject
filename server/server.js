@@ -5,15 +5,10 @@ const {readExpenses, loginUser} = require('./utils.js')
 
 // server initialization
 var express = require('express');
-var fs = require('fs');
-var path = require('path');
-const { get } = require('https');
 
 // start app
 var app = express();
 
-// set view engine to ejs
-app.set('view engine', 'ejs')
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/test', async (req, res) => {
