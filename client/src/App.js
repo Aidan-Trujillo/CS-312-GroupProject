@@ -6,14 +6,17 @@ import {useState, useEffect} from 'react';
 
 
 function App() {
+  // variables to control login state and manual refresh
+  const [logInState, setLogInState] = useState({loggedIn: false, user_id: -1})
+  const [refresh, setRefresh] = useState(false)
+
+  // variables to set editing and filtering
   const [expenses, setExpenses] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editExpense, setEditExpense] = useState(-1);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedMonth, setSelectedMonth] = useState('');
-  // variables to control login state and manual refresh
-  const [logInState, setLogInState] = useState({loggedIn: true, user_id: 1})
-  const [refresh, setRefresh] = useState(false)
+  
 
   // form data entries
   const [amount, setAmount] = useState(0.00);
@@ -22,14 +25,13 @@ function App() {
   const [description, setDescription] = useState("")
 
     useEffect(() => {
-        const getData = async () => {
-            const mockExpenses = [
-                { expense_id: 1, amount: 50.0, category: 'Tech', date: '2024-11-01', description: 'Laptop Accessories' },
-                { expense_id: 2, amount: 20.0, category: 'Lifestyle', date: '2024-11-05', description: 'Coffee' },
-            ];
-            console.log("Mock Data Loaded:", mockExpenses);
-            setExpenses(mockExpenses);
-        };
+      const getData = async () => {
+        axios.get(`http://localhost:8080/expenses?user_id=${logInState.user_id}`).then((data) => {
+          //this console.log will be in our frontend console
+          console.log(data.data)
+          setExpenses(data.data)
+        })
+      };
 
         if (logInState.loggedIn) {
             getData();
@@ -39,9 +41,9 @@ function App() {
 
 
     function handleEdit(expense) {
-    console.log("Editing post:", expense);
-    setEditMode(true);
-    setEditExpense(expense);
+      console.log("Editing post:", expense);
+      setEditMode(true);
+      setEditExpense(expense);
   }
 
   const handleSubmit = (event) => {
@@ -60,8 +62,7 @@ function App() {
     // setRefresh
     setRefresh(true);
   }
-
-  console.log("logInState app: ", logInState)
+  console.log("Selected Month", selectedMonth)
 
     return (
         <div className="App">
@@ -72,6 +73,7 @@ function App() {
             <main>
                 {logInState.loggedIn ? (
                     <>
+                        {/** Form for adding an expense.  */}
                         <div id="form-div">
                             <form onSubmit={handleSubmit}>
                                 {/* Amount Input */}
@@ -94,22 +96,26 @@ function App() {
                                     id="date"
                                     name="date"
                                     value={date}
-                                    onChange={(e) => setDate(e.target.value)}
+                                    onChange={(e) => {setDate(e.target.value); console.log(e.target.value)}}
                                     required
                                 />
                                 <br/>
 
                                 {/* Category Input */}
                                 <label htmlFor="category">Category:</label>
-                                <input
-                                    type="text"
+                                <select
                                     id="category"
                                     name="category"
                                     value={category}
-                                    placeholder="Category (e.g., Food, Tech)"
                                     onChange={(e) => setCategory(e.target.value)}
-                                    required
-                                />
+                                    required>
+                                    <option value="">Select a category</option> {/* Default empty option */}
+                                    <option value="Food">Food</option>
+                                    <option value="Bills">Bills</option>
+                                    <option value="Fun">Fun</option>
+                                    <option value="Groceries">Groceries</option>
+                                    <option value="Other">Other</option>
+                                  </select>
                                 <br/>
 
                                 {/* Description Input */}
@@ -130,9 +136,46 @@ function App() {
                             </form>
                         </div>
 
+                        <div className='placeholder'></div>
 
+                        {/* Edit Post Modal that will pop up when edit is pressed */}
+                        {editMode && 
+                          <EditPostModal 
+                            expense={editExpense} 
+                            closeEdit={() => setEditMode(false)} 
+                            refresh={() => setRefresh(true)} />}
+
+
+                        <h1>Expenses</h1>
+                        {/** Filters */}
+                        <h4>Filters</h4>
+                        <label>Category: </label>
+                        <select
+                          id="selectedCategory"
+                          name="selectedCategory"
+                          value={selectedCategory}
+                          onChange={(e) => setSelectedCategory(e.target.value)}>
+                          <option value="All">All</option> {/* Default empty option */}
+                          <option value="Food">Food</option>
+                          <option value="Bills">Bills</option>
+                          <option value="Fun">Fun</option>
+                          <option value="Groceries">Groceries</option>
+                          <option value="Other">Other</option>
+                        </select>
+                        <label htmlFor="month"> Month and Year: </label>
+                          <input
+                            type="selectedMonth"
+                            id="selectedMonth"
+                            name="selectedMonth"
+                            value={selectedMonth} 
+                            placeholder='yyyy-mm'
+                            onChange={(e) => setSelectedMonth(e.target.value)} // Update the state when the user selects a month
+                            required
+                          />
+
+                        {/*feed*/}
                         <div className="feed">
-                            <h1>Expenses</h1>
+                            
                             {expenses.length === 0 ? (
                                 <p>No expenses match your criteria.</p>
                             ) : (
@@ -140,6 +183,8 @@ function App() {
                                     currentExpenses={expenses}
                                     setCurrentExpenses={setExpenses}
                                     beginEdit={handleEdit}
+                                    selectedCategory={selectedCategory}
+                                    selectedMonth={selectedMonth}
                                 />
                             )}
                         </div>
@@ -147,6 +192,7 @@ function App() {
                 ) : (
                     <LogInModal setLogIn={setLogInState} logInState={logInState}/>
                 )}
+
             </main>
 
             <footer>
@@ -160,10 +206,15 @@ function App() {
 
 function RenderExpenses(props) {
     const [expenses, setExpenses] = useState([]);
-    const {currentExpenses, setCurrentExpenses, beginEdit} = props
+    const {currentExpenses, 
+      setCurrentExpenses, 
+      beginEdit, 
+      selectedCategory,
+      selectedMonth} = props
 
     useEffect(() => {
         if (Array.isArray(currentExpenses)) {
+            // filter the expenses by category
             setExpenses(currentExpenses);
         }
 
@@ -178,6 +229,10 @@ function RenderExpenses(props) {
         setCurrentExpenses(expenses.filter(expense_item => expense_item.expense_id !== expense.expense_id))
     }
 
+    // set up the filtering 
+    const prodExpenseList = filterExpenses(expenses, selectedCategory, selectedMonth)
+
+    
     return (
         <table className="expenses-table">
             <thead>
@@ -190,7 +245,7 @@ function RenderExpenses(props) {
             </tr>
             </thead>
             <tbody>
-            {currentExpenses.map((expense) => (
+            {prodExpenseList.map(expense => 
                 <tr key={expense.expense_id}>
                     <td>{expense.date}</td>
                     <td>{expense.amount}</td>
@@ -201,57 +256,126 @@ function RenderExpenses(props) {
                         <button onClick={() => handleDelete(expense)}>Delete</button>
                     </td>
                 </tr>
-            ))}
+              
+            )}
             </tbody>
         </table>
     );
 }
 
+function filterExpenses(expenses, selectedCategory, selectedMonth){
+  const filteredExpensesCategory = expenses.filter(expense => {
+    if(selectedCategory === "All" || 
+      selectedCategory === expense.category) {
+        return expense
+      }
+   })
+
+  const filteredExpensesMonth = filteredExpensesCategory.filter(expense => {
+    if(selectedMonth === '' || 
+      selectedMonth === expense.date.slice(0,7)) {
+        return expense
+      }
+   })
+
+  return filteredExpensesMonth;
+   // further filter the expenses by month
+
+}
+
 // function to edit the post. 
 function EditPostModal(props) {  
-  const {post, closeEdit} = props
-  const [new_body, setNew_body] = useState(post.body);
-  const [new_author, setNew_author] = useState(post.creator_name);
-  const [new_title, setNew_title] = useState(post.title);
-  const [new_category, setNew_category] = useState(post.category);
-//closeEdit={closeEdit}, old_post={post}, body={new_body}, author={new_author}, title={new_title}, category={new_category}
+  // pull parameters
+  const {expense, closeEdit, refresh} = props
+
+  // form variables
+  const [amount, setAmount] = useState(expense.amount);
+  const [category, setCategory] = useState(expense.category);
+  const [date, setDate] = useState(expense.date);
+  const [description, setDescription] = useState(expense.description)
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // format the new variables
+    const new_expense = {
+      expense_id: expense.expense_id,
+      user_id: expense.user_id,
+      amount: amount,
+      date: date, 
+      description: description,
+      category: category}
+    
+    axios.post('http://localhost:8080/save', new_expense)
+
+    closeEdit();
+    refresh();    
+  }
+
   return (
-    <div style={styles.overlay}>
-    <div id="form-div" style={styles.modalContent}>
-    <form onSubmit={() => submitEditPost(closeEdit, post, new_body, new_author, new_title, new_category)}>
-        <label htmlFor="name">Name: </label>
-        <input type="text" id="name" name="name" value={new_author} onChange={(e) => setNew_author(e.target.value)} required />
-        <br></br>
+    <div id="form-div">
+      <form onSubmit={handleSubmit}>
+          {/* Amount Input */}
+          <label htmlFor="amount">Amount:</label>
+          <input
+              type="number"
+              id="amount"
+              name="amount"
+              value={amount}
+              placeholder="Amount"
+              onChange={(e) => setAmount(e.target.value)}
+              required
+          />
+          <br/>
 
-        <label htmlFor="title">Title: </label>
-        <input type="text" id="title" name="title" value={new_title} onChange={(e) => setNew_title(e.target.value)} required />
-        <br/><br/>
+          {/* Date Input */}
+          <label htmlFor="date">Date:</label>
+          <input
+              type="date"
+              id="date"
+              name="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              required
+          />
+          <br/>
 
-        <label htmlFor="category">Category:</label>
-        <select id="category" name="category" onChange={(e) => setNew_category(e.target.value)} required>
-            <option value="" disabled>Select your category</option>
-            <option value="Tech">Tech</option>
-            <option value="Lifestyle">Lifestyle</option>
-            <option value="Education">Education</option>
-            <option value="None">None</option>
-        </select>
-        <br/><br/>
+          {/* Category Input */}
+          <label htmlFor="category">Category:</label>
+          <select
+              id="category"
+              name="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              required>
+              <option value="">Select a category</option> {/* Default empty option */}
+              <option value="Food">Food</option>
+              <option value="Bills">Bills</option>
+              <option value="Fun">Fun</option>
+              <option value="Groceries">Groceries</option>
+              <option value="Other">Other</option>
+            </select>
+          <br/>
 
-        <label htmlFor="message">Message: </label>
-        <textarea id="message" name="message" rows="4" cols="50" onChange={(e) => setNew_body(e.target.value)} required>
-          {new_body}</textarea>
-        <br/><br/>
+          {/* Description Input */}
+          <label htmlFor="description">Description:</label>
+          <textarea
+              id="description"
+              name="description"
+              value={description}
+              placeholder="Describe the expense"
+              rows="4"
+              onChange={(e) => setDescription(e.target.value)}
+              required
+          ></textarea>
+          <br/>
 
-        <input style={{display: "none"}} type="text" id="time" name="time" value={post.time} ></input>
-        <input style={{display: "none"}} type="text" id="blog_id" name="blog_id" value={post.blog_id} ></input>
-        <input style={{display: "none"}} type="text" id="creator_user_id" name="creator_user_id" value={post.creator_user_id} ></input>
-
-
-        <button type="submit">Post</button>
-        <button onClick={closeEdit}>Cancel</button>
-    </form>
-    </div>
-    </div>
+          {/* Submit Button */}
+          <button type="submit">Save Expense</button>
+          {/*Close Button */}
+          <button onClick={closeEdit}>Close</button>
+      </form>
+      
+  </div>
   );
   
 }

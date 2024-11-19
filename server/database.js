@@ -17,7 +17,6 @@ const getExpenses = async(user_id) => {
 
     // change this to read my posts. 
     const result = await client.query(`SELECT * FROM public.expenses WHERE user_id = ${user_id} ORDER BY date DESC; `)
-        
     return result;
 }
 

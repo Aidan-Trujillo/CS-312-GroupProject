@@ -7,7 +7,23 @@ const { getExpenses, insertExpense, deleteExpense, updateExpense,
 const readExpenses = async (user_id, category, month) => {
     try {
         const result = await getExpenses(user_id, category, month);
-        return { expenses: result.rows };
+
+        // format the date for all expenses
+        const expenses = result.rows.map( expense => {
+
+            // convert the date back to a string from date object
+            const year = expense.date.getFullYear();
+            const month = String(expense.date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+            const day = String(expense.date.getDate()).padStart(2, '0');
+
+            // format
+            expense.date = `${year}-${month}-${day}`
+
+            return expense
+        })
+
+
+        return { expenses: expenses };
     } catch (err) {
         console.error('Error querying data: ', err);
         return { expenses: [] };
@@ -59,11 +75,11 @@ const removeExpense = async (expense) => {
 // a function that saves a post. Takes post list and just writes to the file
 const saveExpense = async (expense) => {
     try{
-        const result = await updateExpense(expense.expense_id);
-        console.log("Post deleted successfuly")
+        const result = await updateExpense(expense);
+        console.log("Post saved successfuly")
         return {success: true}
     } catch (err) {
-        console.error('Error deleting the post', err)
+        console.error('Error saving the post', err)
 
         return {success: false}
     }

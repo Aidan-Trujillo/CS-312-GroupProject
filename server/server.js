@@ -55,9 +55,9 @@ app.get('/expenses', async (req, res) => {
         const { user_id, category, month } = req.query;
         const { expenses } = await readExpenses(user_id, category, month);
 
-        console.log(expenses);
+        /*console.log(expenses);
         console.log(expenses.length);
-
+        */
         res.send(JSON.stringify(expenses));
 
     } catch (err) {
@@ -118,6 +118,7 @@ app.post('/save', async (req,res) => {
         // get the request information
         // asssuming that the user is logged in to delete their own expenses
         const expense = req.body;
+        console.log("Editing a post, saving now: ", expense)
         const { success } = await saveExpense(expense);
 
         if (success) {
