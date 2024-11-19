@@ -264,6 +264,7 @@ function RenderExpenses(props) {
 }
 
 function filterExpenses(expenses, selectedCategory, selectedMonth){
+  // filter the expenses by category
   const filteredExpensesCategory = expenses.filter(expense => {
     if(selectedCategory === "All" || 
       selectedCategory === expense.category) {
@@ -271,6 +272,7 @@ function filterExpenses(expenses, selectedCategory, selectedMonth){
       }
    })
 
+   // further filter the expenses by month
   const filteredExpensesMonth = filteredExpensesCategory.filter(expense => {
     if(selectedMonth === '' || 
       selectedMonth === expense.date.slice(0,7)) {
@@ -279,7 +281,6 @@ function filterExpenses(expenses, selectedCategory, selectedMonth){
    })
 
   return filteredExpensesMonth;
-   // further filter the expenses by month
 
 }
 
