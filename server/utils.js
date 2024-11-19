@@ -4,19 +4,16 @@ const { getExpenses, insertExpense, deleteExpense, updateExpense,
      getUser } = require('./database.js');
 
 // function that outputs an array of blog posts
-const readExpenses = async (user_id) => {
-    try{
-        const result = await getExpenses(user_id);
-        const expenses = result.rows;
-        
-        return {expenses};
-
+const readExpenses = async (user_id, category, month) => {
+    try {
+        const result = await getExpenses(user_id, category, month);
+        return { expenses: result.rows };
     } catch (err) {
-        console.error('Error quering data: ', err)
-        // send black blank file
-        return []
+        console.error('Error querying data: ', err);
+        return { expenses: [] };
     }
 };
+
 
 const loginUser = async (username, password) => {
     try{

@@ -28,6 +28,44 @@
   color: #61dafb;
 }
 
+.expenses-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 18px;
+  text-align: left;
+}
+
+.expenses-table th, .expenses-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.expenses-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.expenses-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.expenses-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.expenses-table button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.expenses-table button:hover {
+  background-color: #ddd;
+}
+
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
