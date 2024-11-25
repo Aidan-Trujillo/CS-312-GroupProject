@@ -6,7 +6,14 @@ const { getExpenses, insertExpense, deleteExpense, updateExpense,
 // function that outputs an array of blog posts
 const readExpenses = async (user_id, category, month) => {
     try {
-        const result = await getExpenses(user_id, category, month);
+        // set up the category query
+        var categoryQ = '';
+        // query for certain categories
+        if(category !== "All"){
+            categoryQ = `AND category = '${category}'`
+        }
+
+        const result = await getExpenses(user_id, categoryQ, month);
 
         // format the date for all expenses
         const expenses = result.rows.map( expense => {

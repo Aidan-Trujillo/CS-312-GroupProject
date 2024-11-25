@@ -25,8 +25,11 @@ function App() {
   const [description, setDescription] = useState("")
 
     useEffect(() => {
-      const getData = async () => {
-        axios.get(`http://localhost:8080/expenses?user_id=${logInState.user_id}`).then((data) => {
+      const getData = async (category) => {
+        // query for a specific category
+        const categoryQ = '&category=' + category
+
+        axios.get(`http://localhost:8080/expenses?user_id=${logInState.user_id}${categoryQ}`).then((data) => {
           //this console.log will be in our frontend console
           console.log(data.data)
           setExpenses(data.data)
@@ -34,10 +37,10 @@ function App() {
       };
 
         if (logInState.loggedIn) {
-            getData();
+            getData(selectedCategory);
             setRefresh(false);
         }
-    }, [logInState, refresh]);
+    }, [logInState, refresh, selectedCategory]);
 
 
     function handleEdit(expense) {

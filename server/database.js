@@ -12,11 +12,10 @@ client.connect();
 
 
 // database code to get a post
-const getExpenses = async(user_id) => {
-    // connect to the database
+const getExpenses = async(user_id, categoryQ, month) => {  
 
     // change this to read my posts. 
-    const result = await client.query(`SELECT * FROM public.expenses WHERE user_id = ${user_id} ORDER BY date DESC; `)
+    const result = await client.query(`SELECT * FROM public.expenses WHERE user_id = ${user_id} ` + categoryQ + ' ORDER BY date DESC;');
     return result;
 }
 
