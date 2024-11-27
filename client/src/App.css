@@ -2,6 +2,32 @@
   text-align: center;
 }
 
+.analysis {
+  padding: 30px;
+}
+
+.monthly-analysis {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.analysis-section {
+    flex: 1;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.analysis-section.left {
+    background-color: #eef6ff;
+}
+
+.analysis-section.right {
+    background-color: #fff6ee;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;

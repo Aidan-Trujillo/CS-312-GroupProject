@@ -3,11 +3,13 @@ import axios from 'axios';
 import './App.css';
 import './styles/style.css'
 import {useState, useEffect} from 'react';
+import AnalysisPage from './Analysis'
 
 
 function App() {
   // variables to control login state and manual refresh
   const [logInState, setLogInState] = useState({loggedIn: false, user_id: -1})
+  const [analysis, setAnalysis] = useState(false)
   const [refresh, setRefresh] = useState(false)
 
   // variables to set editing and filtering
@@ -16,7 +18,7 @@ function App() {
   const [editExpense, setEditExpense] = useState(-1);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedMonth, setSelectedMonth] = useState('');
-  
+
 
   // form data entries
   const [amount, setAmount] = useState(0.00);
@@ -73,6 +75,18 @@ function App() {
             <main>
                 {logInState.loggedIn ? (
                     <>
+                    <div id="navigation">
+                        <button onClick={() => setAnalysis(false)}>Main Tracker</button>
+                        <button onClick={() => setAnalysis(true)}>View Analysis</button>
+                    </div>
+                    {analysis ? (
+                        <AnalysisPage 
+                          selectedMonth={selectedMonth}
+                          setSelectedMonth={setSelectedMonth}
+                          expenses={expenses}
+                        />
+                        ) : (
+                        <>
                         {/** Form for adding an expense.  */}
                         <div id="form-div">
                             <form onSubmit={handleSubmit}>
@@ -189,6 +203,8 @@ function App() {
                             )}
                         </div>
                     </>
+                  )}
+                </>
                 ) : (
                     <LogInModal setLogIn={setLogInState} logInState={logInState}/>
                 )}
@@ -200,7 +216,6 @@ function App() {
             </footer>
         </div>
     );
-
 }
 
 
@@ -256,7 +271,6 @@ function RenderExpenses(props) {
                         <button onClick={() => handleDelete(expense)}>Delete</button>
                     </td>
                 </tr>
-              
             )}
             </tbody>
         </table>
