@@ -6,6 +6,10 @@ import {useState, useEffect} from 'react';
 import AnalysisPage from './Analysis'
 
 
+// global constant
+const CATEGORIES = ["Food", "Bills", "Fun", "Groceries", "Other"];
+
+
 function App() {
   // variables to control login state and manual refresh
   const [logInState, setLogInState] = useState({loggedIn: false, user_id: -1})
@@ -127,11 +131,11 @@ function App() {
                                     onChange={(e) => setCategory(e.target.value)}
                                     required>
                                     <option value="">Select a category</option> {/* Default empty option */}
-                                    <option value="Food">Food</option>
-                                    <option value="Bills">Bills</option>
-                                    <option value="Fun">Fun</option>
-                                    <option value="Groceries">Groceries</option>
-                                    <option value="Other">Other</option>
+                                    <option value={CATEGORIES[0]}>{CATEGORIES[0]}</option>
+                                    <option value={CATEGORIES[1]}>{CATEGORIES[1]}</option>
+                                    <option value={CATEGORIES[2]}>{CATEGORIES[2]}</option>
+                                    <option value={CATEGORIES[3]}>{CATEGORIES[3]}</option>
+                                    <option value={CATEGORIES[4]}>{CATEGORIES[4]}</option>
                                   </select>
                                 <br/>
 
@@ -173,11 +177,11 @@ function App() {
                           value={selectedCategory}
                           onChange={(e) => setSelectedCategory(e.target.value)}>
                           <option value="All">All</option> {/* Default empty option */}
-                          <option value="Food">Food</option>
-                          <option value="Bills">Bills</option>
-                          <option value="Fun">Fun</option>
-                          <option value="Groceries">Groceries</option>
-                          <option value="Other">Other</option>
+                          <option value={CATEGORIES[0]}>{CATEGORIES[0]}</option>
+                          <option value={CATEGORIES[1]}>{CATEGORIES[1]}</option>
+                          <option value={CATEGORIES[2]}>{CATEGORIES[2]}</option>
+                          <option value={CATEGORIES[3]}>{CATEGORIES[3]}</option>
+                          <option value={CATEGORIES[4]}>{CATEGORIES[4]}</option>
                         </select>
                         <label htmlFor="month"> Month and Year: </label>
                           <input

@@ -1,7 +1,24 @@
 import axios from 'axios';
 import './App.css';
 import './styles/style.css'
-import {useState, useEffect} from 'react';
+import {
+    useState, 
+    useEffect
+} from 'react';
+import React from "react";
+import { Pie } from "react-chartjs-2";
+
+// Import Chart.js components for configuration
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+// constants should be the same as in App.js
+const CATEGORIES = ["Food", "Bills", "Fun", "Groceries", "Other"];
+
 
 
 function AnalysisPage({ expenses}) {
@@ -76,11 +93,91 @@ function AnalysisPage({ expenses}) {
                 <div className="analysis-section right">
                     <h3>Right Section</h3>
                     <p>This section can show detailed expense breakdowns or charts.</p>
+                    < PieChart categoryBreakdown={categoryBreakdown} />
                 </div>
 
             </div>
         </div>
     )
 }
+
+
+
+// Register Chart.js components
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+const PieChart = (categoryBreakdown) => {
+    // get labels and data
+    var categoryLabels = []
+    var categoryData = []
+    console.log("Category Breakdown: ", categoryBreakdown.categoryBreakdown)
+
+
+    // map the data into the labels and data
+    Object.entries(categoryBreakdown.categoryBreakdown).map(([category, amount]) => {
+        console.log(`${category}: ${amount}`);
+        categoryLabels.push(category)
+        categoryData.push(amount)
+    });
+
+    // Data for the chart
+    const data = {
+      labels: categoryLabels,
+      datasets: [
+        {
+          label: "Expense Categories",
+          data: categoryData,
+          backgroundColor: [
+            "rgba(255, 99, 132, 0.2)",  // Light Red
+            "rgba(75, 192, 192, 0.2)",  // Light Teal
+            "rgba(255, 206, 86, 0.2)",  // Light Yellow
+            "rgba(153, 102, 255, 0.2)", // Light Purple
+            "rgba(54, 162, 235, 0.2)"   // Light Blue
+            ],
+          borderColor: [
+            "rgba(255, 99, 132, 1)",    // Bold Red
+            "rgba(75, 192, 192, 1)",    // Bold Teal
+            "rgba(255, 206, 86, 1)",    // Bold Yellow
+            "rgba(153, 102, 255, 1)",   // Bold Purple
+            "rgba(54, 162, 235, 1)"     // Bold Blue
+            ],        
+          borderWidth: 1,
+        },
+      ],
+    };
+  
+    // Chart options with onClick handler
+    const options = {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (tooltipItem) =>
+              `${tooltipItem.label}: $${tooltipItem.raw}`,
+          },
+        },
+      },
+      onClick: (event, elements) => {
+        if (elements.length > 0) {
+          // Get the index of the clicked slice
+          const index = elements[0].index;
+  
+          // Get the label and value of the clicked slice
+          const label = data.labels[index];
+          const value = data.datasets[0].data[index];
+  
+          // Perform action on click
+          alert(`You clicked on ${label} with value ${value}`);
+        }
+      },
+    };
+
+  return (
+    <div style={{ width: "400px", height: "400px" }}>
+      <Pie data={data} options={options}/>
+    </div>
+  );
+};
+
+
 
 export default AnalysisPage
