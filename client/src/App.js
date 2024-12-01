@@ -90,6 +90,8 @@ function App() {
                         <AnalysisPage 
                           selectedMonth={selectedMonth}
                           setSelectedMonth={setSelectedMonth}
+                          setSelectedCategory={setSelectedCategory}
+                          setAnalysis={setAnalysis}
                           expenses={expenses}
                         />
                         ) : (

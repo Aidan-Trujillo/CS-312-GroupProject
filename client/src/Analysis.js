@@ -21,7 +21,9 @@ const CATEGORIES = ["Food", "Bills", "Fun", "Groceries", "Other"];
 
 
 
-function AnalysisPage({ expenses}) {
+function AnalysisPage({expenses, setSelectedCategory, setAnalysis}) {
+    //const [expenses, setSelectedCategory, setAnalysis] = props
+    console.log(setSelectedCategory)
     const [selectedMonth, setSelectedMonth] = useState('');
 
     useEffect(() => {
@@ -31,6 +33,7 @@ function AnalysisPage({ expenses}) {
     const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Adding 1 because months are 0-indexed
 
     setSelectedMonth(`${year}-${month}`);
+    setSelectedCategory("All")
   }, []);
 
     const filteredExpenses = expenses.filter((expense) =>
@@ -93,7 +96,10 @@ function AnalysisPage({ expenses}) {
                 <div className="analysis-section right">
                     <h3>Right Section</h3>
                     <p>This section can show detailed expense breakdowns or charts.</p>
-                    < PieChart categoryBreakdown={categoryBreakdown} />
+                    < PieChart 
+                        categoryBreakdown={categoryBreakdown} 
+                        setSelectedCategory={setSelectedCategory} 
+                        setAnalysis={setAnalysis} />
                 </div>
 
             </div>
@@ -106,7 +112,8 @@ function AnalysisPage({ expenses}) {
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const PieChart = (categoryBreakdown) => {
+const PieChart = (props) => {
+    const {categoryBreakdown, setSelectedCategory, setAnalysis} = props
     // get labels and data
     var categoryLabels = []
     var categoryData = []
@@ -114,7 +121,7 @@ const PieChart = (categoryBreakdown) => {
 
 
     // map the data into the labels and data
-    Object.entries(categoryBreakdown.categoryBreakdown).map(([category, amount]) => {
+    Object.entries(categoryBreakdown).map(([category, amount]) => {
         console.log(`${category}: ${amount}`);
         categoryLabels.push(category)
         categoryData.push(amount)
@@ -161,12 +168,14 @@ const PieChart = (categoryBreakdown) => {
           // Get the index of the clicked slice
           const index = elements[0].index;
   
-          // Get the label and value of the clicked slice
+          // Get the label of the clicked slice
           const label = data.labels[index];
-          const value = data.datasets[0].data[index];
-  
-          // Perform action on click
-          alert(`You clicked on ${label} with value ${value}`);
+
+          // set the selected category to the label
+          setSelectedCategory(label)
+
+          // switch analysis to falce so that it goes back to the main page
+          setAnalysis(false)
         }
       },
     };
