@@ -8,6 +8,10 @@ import {
 import React from "react";
 import { Pie } from "react-chartjs-2";
 
+//imports for bar chart
+import { Bar } from "react-chartjs-2";
+import { BarElement, CategoryScale, LinearScale} from "chart.js";
+
 // Import Chart.js components for configuration
 import {
   Chart as ChartJS,
@@ -78,35 +82,44 @@ function AnalysisPage({expenses, setSelectedCategory, setAnalysis}) {
                     <h4>Expenditure per Category:</h4>
                     <table>
                         <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>Amount</th>
-                            </tr>
+                        <tr>
+                            <th>Category</th>
+                            <th>Amount</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {Object.entries(categoryBreakdown).map(([category, amount]) => (
-                                <tr key={category}>
-                                    <td>{category}</td>
-                                    <td>${amount.toFixed(2)}</td>
-                                </tr>
-                            ))}
+                        {Object.entries(categoryBreakdown).map(([category, amount]) => (
+                            <tr key={category}>
+                                <td>{category}</td>
+                                <td>${amount.toFixed(2)}</td>
+                            </tr>
+                        ))}
                         </tbody>
                     </table>
                 </div>
                 <div className="analysis-section right">
+                    <div className="right-section-title">
                     <h3>Right Section</h3>
                     <p>This section can show detailed expense breakdowns or charts.</p>
-                    < PieChart 
-                        categoryBreakdown={categoryBreakdown} 
-                        setSelectedCategory={setSelectedCategory} 
-                        setAnalysis={setAnalysis} />
+                    </div>
+                    <div className="chart-container">
+                        <PieChart
+                            categoryBreakdown={categoryBreakdown}
+                            setSelectedCategory={setSelectedCategory}
+                            setAnalysis={setAnalysis}
+                        />
+                    </div>
+                    <div className="chart-container">
+                        <BarChart
+                            categoryBreakdown={categoryBreakdown}
+                        />
+                    </div>
                 </div>
 
             </div>
         </div>
     )
 }
-
 
 
 // Register Chart.js components
@@ -187,6 +200,77 @@ const PieChart = (props) => {
   );
 };
 
+// register chart.js components for bar chart
+ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+
+const BarChart = (props) => {
+    const { categoryBreakdown } = props;
+
+    // Extract labels and data for the bar chart
+    const categoryLabels = [];
+    const categoryData = [];
+
+    Object.entries(categoryBreakdown).forEach(([category, amount]) => {
+        categoryLabels.push(category);
+        categoryData.push(amount);
+    });
+
+    // Data for the chart
+    const data = {
+        labels: categoryLabels,
+        datasets: [
+            {
+                label: "Expense Categories",
+                data: categoryData,
+                backgroundColor: [
+                    "rgba(255, 99, 132, 0.2)",  // Light Red
+                    "rgba(75, 192, 192, 0.2)",  // Light Teal
+                    "rgba(255, 206, 86, 0.2)",  // Light Yellow
+                    "rgba(153, 102, 255, 0.2)", // Light Purple
+                    "rgba(54, 162, 235, 0.2)",  // Light Blue
+                ],
+                borderColor: [
+                    "rgba(255, 99, 132, 1)",    // Bold Red
+                    "rgba(75, 192, 192, 1)",    // Bold Teal
+                    "rgba(255, 206, 86, 1)",    // Bold Yellow
+                    "rgba(153, 102, 255, 1)",   // Bold Purple
+                    "rgba(54, 162, 235, 1)",    // Bold Blue
+                ],
+                borderWidth: 1,
+            },
+        ],
+    };
+
+    // Options for the chart
+    const options = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: "top",
+            },
+            tooltip: {
+                callbacks: {
+                    label: (tooltipItem) =>
+                        `${tooltipItem.label}: $${tooltipItem.raw}`,
+                },
+            },
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+            },
+            y: {
+                beginAtZero: true,
+            },
+        },
+    };
+
+    return (
+        <div style={{ width: "400px", height: "400px" }}>
+            <Bar data={data} options={options} />
+        </div>
+    );
+};
 
 
 export default AnalysisPage

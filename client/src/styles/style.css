@@ -72,3 +72,17 @@ form button {
     justify-content: 'center';
     align-items: 'center';
 }
+
+.analysis-section.right {
+    display: flex;            /* Enables horizontal layout */
+    justify-content: space-between; /* Adds space between charts */
+    align-items: center;      /* Aligns charts vertically in the middle */
+    gap: 20px;                /* Adds spacing between the charts */
+}
+
+.chart-container {
+    width: 50%;               /* Adjusts chart widths dynamically */
+    display: flex;
+    justify-content: center;  /* Centers each chart within its container */
+}
+
