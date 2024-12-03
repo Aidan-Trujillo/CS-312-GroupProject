@@ -112,6 +112,8 @@ function AnalysisPage({expenses, setSelectedCategory, setAnalysis}) {
                     <div className="chart-container">
                         <BarChart
                             categoryBreakdown={categoryBreakdown}
+                            setSelectedCategory={setSelectedCategory}
+                            setAnalysis={setAnalysis}
                         />
                     </div>
                 </div>
@@ -204,7 +206,7 @@ const PieChart = (props) => {
 ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
 const BarChart = (props) => {
-    const { categoryBreakdown } = props;
+    const { categoryBreakdown, setSelectedCategory, setAnalysis } = props;
 
     // Extract labels and data for the bar chart
     const categoryLabels = [];
@@ -254,6 +256,21 @@ const BarChart = (props) => {
                         `${tooltipItem.label}: $${tooltipItem.raw}`,
                 },
             },
+        },
+        onClick: (event, elements) => {
+          if (elements.length > 0) {
+            // Get the index of the clicked bar
+            const index = elements[0].index;
+    
+            // Get the label of the clicked bar
+            const label = data.labels[index];
+    
+            // Set the selected category to the label
+            setSelectedCategory(label);
+    
+            // Switch analysis to false to return to the main page
+            setAnalysis(false);
+          }
         },
         scales: {
             x: {
