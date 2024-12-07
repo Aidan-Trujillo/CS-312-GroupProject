@@ -47,9 +47,10 @@ function SignUpModal (props) {
                 <br/><br/>
     
                 <button type="submit">Sign Up</button>
+                <button onClick={() => setSignedUp(true)}>Back</button>
             </form>
             <p style={error ? { color: 'red' } : { color: 'red', display: 'none' }}>
-            Incorrect Username or Password
+            Username Taken
             </p>
         </div>
       </div>
