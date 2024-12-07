@@ -6,6 +6,7 @@ import {
     useEffect
 } from 'react';
 import React from "react";
+
 import { Pie } from "react-chartjs-2";
 
 //imports for bar chart
@@ -99,8 +100,6 @@ function AnalysisPage({expenses, setSelectedCategory, setAnalysis}) {
                 </div>
                 <div className="analysis-section right">
                     <div className="right-section-title">
-                    <h3>Right Section</h3>
-                    <p>This section can show detailed expense breakdowns or charts.</p>
                     </div>
                     <div className="chart-container">
                         <PieChart
@@ -137,7 +136,7 @@ const PieChart = (props) => {
 
     // map the data into the labels and data
     Object.entries(categoryBreakdown).map(([category, amount]) => {
-        console.log(`${category}: ${amount}`);
+        //console.log(`${category}: ${amount}`);
         categoryLabels.push(category)
         categoryData.push(amount)
     });

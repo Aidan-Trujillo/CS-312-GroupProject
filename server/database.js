@@ -44,7 +44,7 @@ const updateExpense = async(expense) => {
 }
 
 // database code to get a user
-const getUser = async(user_name, password) => {
+const getUser = async(user_name) => {
     // connect to the database
 
     // change this to read my posts. 
@@ -56,33 +56,16 @@ const getUser = async(user_name, password) => {
         var userData = null
     }
 
-    if (userData !== null && password === userData.password) {
-        console.log("password success")
-
-        const user_id = userData.user_id
-        return {success: true, user_id: user_id}
-    } else {
-        return {success: false}
-    }
-
     return userData;
 }
 
 // code to sign up a user
-const insertUser = async(user_name, password, name) => {
-    // get last user
-    const result = await client.query(`SELECT user_id FROM public.users ORDERBY user_id DSC`)
-
-    console.log(result.rows)
-    // get the first user_id number and add 1
-    lastId = result.rows[0].user_id
-    newId = lastId + 1
-    console.log(`New ID!!! ${newId}`)
-
+const insertUser = async(user_name, password) => {
     // insert data into table now.
-    await client.query(`INSERT INTO public.users(
-	user_id, password, name, user_name)
-	VALUES (${newId}, ${password}, ${name}, ${user_name});`)
+    await client.query(`
+        INSERT INTO public.users(username, password)
+	    VALUES ($1, $2);`, 
+    [user_name, password])
 
     console.log("Expense added successfully.")
 

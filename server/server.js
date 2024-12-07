@@ -1,7 +1,7 @@
 // server to handle backend of a expense tracker website 
 
 // dependencies
-const {readExpenses, addExpense, loginUser, removeExpense, saveExpense} = require('./utils.js')
+const {readExpenses, addExpense, loginUser, signUpUser, removeExpense, saveExpense} = require('./utils.js')
 const cors = require('cors');
 
 
@@ -48,6 +48,26 @@ app.post('/login', async (req,res) => {
     }
 })
 
+app.post('/signup', async (req,res) => {
+    try{
+        const {username, password} = req.body;
+        console.log("Logging in", req.body)
+
+        const {success, error} = await signUpUser(username, password)
+
+        if(success) {
+            var jsonData = { success: success }
+            res.send(JSON.stringify(jsonData, null, 2))
+        } else {
+            var jsonData = {success: success, error: error}
+            res.send(JSON.stringify(jsonData, null, 2))
+        }
+        
+    } catch (err) {
+        console.error('Error: ', err);
+        res.status(500).send('Error processing the form')
+    }
+})
 
 // page for viewing expenses
 app.get('/expenses', async (req, res) => {

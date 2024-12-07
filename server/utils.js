@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { json } = require('express');
 const { getExpenses, insertExpense, deleteExpense, updateExpense, 
-     getUser } = require('./database.js');
+     getUser, insertUser } = require('./database.js');
 
 // function that outputs an array of blog posts
 const readExpenses = async (user_id, category, month) => {
@@ -40,8 +40,17 @@ const readExpenses = async (user_id, category, month) => {
 
 const loginUser = async (username, password) => {
     try{
-        const {success, user_id} = await getUser(username, password);
-        console.log("Login User: ", success, user_id)
+        const userData = await getUser(username);
+
+        if (userData !== null && password === userData.password) {
+            console.log("Login User: ",  userData)
+    
+            const user_id = userData.user_id
+            return {success: true, user_id: user_id}
+        } else {
+            return {success: false}
+        }
+
         return {success: success, user_id: user_id}
 
     } catch (err) {
@@ -51,6 +60,27 @@ const loginUser = async (username, password) => {
     }
 }
 
+const signUpUser = async (username, password) => {
+    try{
+        // make sure that the user is not existing already
+        const potential_user = await getUser(username);
+
+        // check if user exists
+        if (potential_user === null) {
+            // when username is not already taken, sign user up
+            insertUser(username, password)
+            return {success: true}
+        } else {
+            // user does exist
+            return {success: false, error: "Username Taken"}
+        }
+
+
+    } catch (err) {
+        console.error('Error quering data: ', err)
+        return []
+    }
+}
 
 // function that simplly adds a newly created expense for a user
 const addExpense = async (expense) => {
@@ -97,6 +127,7 @@ const saveExpense = async (expense) => {
 module.exports = {
     readExpenses,
     loginUser,
+    signUpUser,
     addExpense,
     removeExpense, 
     saveExpense

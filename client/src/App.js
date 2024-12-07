@@ -3,7 +3,8 @@ import axios from 'axios';
 import './App.css';
 import './styles/style.css'
 import {useState, useEffect} from 'react';
-import AnalysisPage from './Analysis'
+import AnalysisPage from './Analysis';
+import SignUpModal from './SignUp'
 
 
 // global constant
@@ -15,6 +16,7 @@ function App() {
   const [logInState, setLogInState] = useState({loggedIn: false, user_id: -1})
   const [analysis, setAnalysis] = useState(false)
   const [refresh, setRefresh] = useState(false)
+  const [signedUp, setSignedUp] = useState(true)
 
   // variables to set editing and filtering
   const [expenses, setExpenses] = useState([]);
@@ -80,6 +82,15 @@ function App() {
             </header>
 
             <main>
+                {
+                  // set the sign up page
+                  logInState.loggedIn || signedUp ? 
+                    <>{/* placeholder */}</> 
+                      :
+                      <SignUpModal setSignedUp={setSignedUp}/>
+                  
+                }
+
                 {logInState.loggedIn ? (
                     <>
                     <div id="navigation">
@@ -215,7 +226,10 @@ function App() {
                   )}
                 </>
                 ) : (
-                    <LogInModal setLogIn={setLogInState} logInState={logInState}/>
+                    <LogInModal 
+                      setLogIn={setLogInState} 
+                      logInState={logInState}
+                      setSignedUp={setSignedUp}/>
                 )}
 
             </main>
@@ -459,7 +473,7 @@ const styles = {
 };
 
 function LogInModal (props) {
-  const {setLogIn, logInState} = props
+  const {setLogIn, logInState, setSignedUp} = props
   // set the user name and password variables
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -495,7 +509,8 @@ function LogInModal (props) {
           <input type="text" id="password" name="password" onChange={(e) => setPassword(e.target.value)} required />
           <br/><br/>
 
-          <button type="submit">Post</button>
+          <button type="submit">Log In</button>
+          <button onClick={() => setSignedUp(false)}>Sign Up</button>
       </form>
       <p style={attempts !== 0 ? { color: 'red' } : { color: 'red', display: 'none' }}>
         Incorrect Username or Password
